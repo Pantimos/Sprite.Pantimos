@@ -1,0 +1,13 @@
+/**
+ * # module/canvas
+ *
+ * Constructor for the sprite sheet canvas element, which holds and displays
+ * all placed sprites. Used for manipulating sprite placement and
+ * state
+ *
+ * > http://draeton.github.io/stitches<br/>
+ * > Copyright 2013 Matthew Cobbs<br/>
+ * > Licensed under the MIT license.
+ */
+
+define(["wrap/jquery","util/util","util/array","manager/layout","module/sprite"],function(e,t,n,r,i){"use strict";var s={images:null,dimensions:{width:400,height:400}},o=function(n,r,i){this.$element=e(n),this.settings=e.extend({},s,r),this.images=this.settings.images,this.dimensions=this.settings.dimensions,this.sprites=[],this.names=[],this.onprogress=i.onprogress||t.noop};return o.classname=".stitches-canvas",o.prototype={constructor:o,init:function(){this.reset=t.debounce(this.reset,500),this.bind(),this.setup(),this.reset()},bind:function(){this.$element.on("clear-active",e.proxy(this.clearActive,this))},setup:function(){var t=this;e(this.images).each(function(){var n=e(this),r=n.data("name"),i=n.attr("src");t.createSprite(r,i)}).remove()},reset:function(){this.$element.trigger("show-overlay"),this.measure(this.sprites),this.place(this.sprites),this.cut(this.sprites),this.$element.trigger("generate-sheets"),this.$element.trigger("hide-overlay")},measure:function(e){this.dimensions=r.getDimensions(e,this.settings.dimensions)},place:function(t){var n=[];e.map(t,function(e){e.reset()}),t=t.sort(function(e,t){return e.name===t.name?0:e.name>t.name?1:-1}),r.placeSprites(t,n,this.dimensions,this.onprogress)},cut:function(e){r.trim(e,this.dimensions),this.$element.css({width:this.dimensions.width+"px",height:this.dimensions.height+"px"})},add:function(e){this.sprites.push(e),this.names.push(e.name),this.$element.trigger("show-overlay"),e.$element.appendTo(this.$element),this.$element.trigger("update-toolbar"),this.reset()},remove:function(e){this.sprites=n.remove(this.sprites,e),this.names=n.remove(this.names,e.name),this.$element.trigger("show-overlay"),e.$element.fadeOut("fast").remove(),this.$element.trigger("update-toolbar"),this.$element.trigger("close-properties"),this.reset()},clear:function(){this.empty(),this.$element.trigger("show-overlay"),this.$element.trigger("update-toolbar"),this.$element.trigger("close-properties"),this.$element.trigger("open-settings"),this.reset()},empty:function(){this.sprites=[],this.names=[],this.$element.empty()},createSprite:function(e,t){var n=this,r=new i({name:e,src:t,padding:this.settings.padding},{onload:function(e){n.add(e)}})},clearActive:function(t,n){this.$element.find(".active").each(function(){var t=e(this),r=t.data("sprite");n&&r!==n&&(t.removeClass("active"),r.active=!1)})},toJSON:function(){return{sprites:this.sprites}}},o});
